@@ -1,0 +1,58 @@
+version: 2
+
+project_name: push
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - main: .
+    binary: push
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/techulus/push-cli/cmd.Version={{.Version}}
+      - -X github.com/techulus/push-cli/cmd.Commit={{.Commit}}
+      - -X github.com/techulus/push-cli/cmd.BuildDate={{.Date}}
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+
+brews:
+  - repository:
+      owner: techulus
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    directory: Formula
+    homepage: https://push.techulus.com
+    description: CLI for sending push notifications via Push by Techulus
+    license: MIT
+    install: |
+      bin.install "push"
+    test: |
+      system "#{bin}/push", "--version"
+
+release:
+  github:
+    owner: techulus
+    name: push-cli
