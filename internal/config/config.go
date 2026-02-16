@@ -12,19 +12,19 @@ import (
 var osExit = os.Exit
 
 const (
-	configDir  = ".push"
+	configDir  = "push"
 	configFile = "config"
 	configType = "yaml"
 )
 
 func Init() {
-	home, err := os.UserHomeDir()
+	cfgBase, err := os.UserConfigDir()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error finding home directory: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error finding config directory: %v\n", err)
 		osExit(1)
 	}
 
-	dir := filepath.Join(home, configDir)
+	dir := filepath.Join(cfgBase, configDir)
 	viper.AddConfigPath(dir)
 	viper.SetConfigName(configFile)
 	viper.SetConfigType(configType)
@@ -38,12 +38,12 @@ func Init() {
 }
 
 func SetAPIKey(key string) error {
-	home, err := os.UserHomeDir()
+	cfgBase, err := os.UserConfigDir()
 	if err != nil {
-		return fmt.Errorf("finding home directory: %w", err)
+		return fmt.Errorf("finding config directory: %w", err)
 	}
 
-	dir := filepath.Join(home, configDir)
+	dir := filepath.Join(cfgBase, configDir)
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		return fmt.Errorf("creating config directory: %w", err)
 	}

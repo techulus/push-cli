@@ -52,13 +52,15 @@ func TestMaskedAPIKey_NineChars(t *testing.T) {
 
 func TestInit_MalformedConfig(t *testing.T) {
 	tmpDir := t.TempDir()
-	configDir := filepath.Join(tmpDir, ".push")
-	os.MkdirAll(configDir, 0700)
-	os.WriteFile(filepath.Join(configDir, "config.yaml"), []byte(":::invalid yaml"), 0600)
+	t.Setenv("HOME", tmpDir)
 
-	origHome := os.Getenv("HOME")
-	os.Setenv("HOME", tmpDir)
-	defer os.Setenv("HOME", origHome)
+	cfgBase, err := os.UserConfigDir()
+	if err != nil {
+		t.Fatalf("UserConfigDir() error: %v", err)
+	}
+	cfgDir := filepath.Join(cfgBase, "push")
+	os.MkdirAll(cfgDir, 0700)
+	os.WriteFile(filepath.Join(cfgDir, "config.yaml"), []byte(":::invalid yaml"), 0600)
 
 	viper.Reset()
 
@@ -78,10 +80,7 @@ func TestInit_MalformedConfig(t *testing.T) {
 
 func TestSetAPIKey_FilePermissions(t *testing.T) {
 	tmpDir := t.TempDir()
-
-	origHome := os.Getenv("HOME")
-	os.Setenv("HOME", tmpDir)
-	defer os.Setenv("HOME", origHome)
+	t.Setenv("HOME", tmpDir)
 
 	viper.Reset()
 
@@ -89,7 +88,11 @@ func TestSetAPIKey_FilePermissions(t *testing.T) {
 		t.Fatalf("SetAPIKey() error: %v", err)
 	}
 
-	configPath := filepath.Join(tmpDir, ".push", "config.yaml")
+	cfgBase, err := os.UserConfigDir()
+	if err != nil {
+		t.Fatalf("UserConfigDir() error: %v", err)
+	}
+	configPath := filepath.Join(cfgBase, "push", "config.yaml")
 	info, err := os.Stat(configPath)
 	if err != nil {
 		t.Fatalf("Stat(%q) error: %v", configPath, err)

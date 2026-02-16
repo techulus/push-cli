@@ -87,7 +87,7 @@ push notify-group my-team --title "Standup" --body "Daily standup in 5 minutes"
 
 ## Configuration
 
-The API key is stored in `~/.push/config.yaml`.
+The API key is stored in `<config-dir>/push/config.yaml`, where `<config-dir>` is `~/Library/Application Support` on macOS, `~/.config` on Linux, and `%AppData%` on Windows.
 
 ## License
 
